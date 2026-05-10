@@ -20,3 +20,9 @@ A Bash script that pings multiple domains and verifies connectivity, simulating 
 
 ### Web Monitor (`web_test.sh`)
 Utilizes `curl` to validate HTTP status codes (200, 404, 405) to ensure backend service reliability.
+
+### Site Health Checker (`check_site.sh`)
+An automated bash script that uses `curl` to capture HTTP status codes and verify if a website is reachable (200 OK).
+
+### Network Port Scanner (`port_check.sh`)
+A networking utility that uses `nc` (Netcat) to verify if specific service ports (like 443 for HTTPS) are open on a target server.
