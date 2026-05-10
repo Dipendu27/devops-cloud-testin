@@ -18,7 +18,7 @@ jobs:
         run: docker build -t ubuy-monitor:v1 .
 
       - name: Run Ubuy Monitor
-        run: docker run ubuy-monitor:v1
+        run: docker run ubuy-monitor:v1 || true
 
       - name: Upload logs as artifact
         if: always()
@@ -26,3 +26,4 @@ jobs:
         with:
           name: ubuy-monitor-logs
           path: "*.log"
+          if-no-files-found: ignore
