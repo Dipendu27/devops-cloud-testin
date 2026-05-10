@@ -1,0 +1,28 @@
+name: Ubuy Monitor CI
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t ubuy-monitor:v1 .
+
+      - name: Run Ubuy Monitor
+        run: docker run ubuy-monitor:v1
+
+      - name: Upload logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuy-monitor-logs
+          path: "*.log"
