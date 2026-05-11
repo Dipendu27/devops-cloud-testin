@@ -121,7 +121,6 @@ docker run ubuy-monitor:v1
 ## 🎯 Target Roles
 
 QA Engineer · Cloud Automation Tester · Game Functionality Tester  
-Targeting: **InnoWave · iNetFrame · Wipro · Rockstar Games**
 
 ---
 
