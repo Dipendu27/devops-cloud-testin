@@ -20,6 +20,11 @@ jobs:
       - name: Run Ubuy Monitor
         run: docker run ubuy-monitor:v1 || true
 
+      - name: Install Node & Newman
+        run: |
+          npm install -g newman
+          newman run ubuy_api_tests.json
+
       - name: Upload logs as artifact
         if: always()
         uses: actions/upload-artifact@v4
