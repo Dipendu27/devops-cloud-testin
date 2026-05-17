@@ -44,6 +44,7 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 18:** Local AI Benchmarking — Python script for Ollama response speed testing
 - [x] **Day 19:** Dynamic Data Parsing — Bash `for` loops combined with `jq` to iterate through JSON arrays dynamically
 - [x] **Day 20:** Containerization (Docker) — Eliminating "It works on my machine" by writing a Dockerfile (Alpine), building images, and running isolated environments
+- [x] **Day 21:** Master CI/CD Pipeline — GitHub Actions builds the Docker test image, runs monitor checks, validates inventory JSON, executes Newman API tests, and uploads reports/logs as artifacts
 
 ---
 
@@ -80,14 +81,18 @@ docker run ubuy-monitor:v1 bash inventory_check.sh
 ---
 
 ### ⚙️ GitHub Actions CI/CD (`.github/workflows/ubuy-monitor.yml`)
-Automated pipeline that triggers on every `git push` and Pull Request.  
-Builds the Docker image and runs the Ubuy monitor in GitHub's cloud — no manual steps required.
+Automated master pipeline that triggers on every `git push` and Pull Request.
+
+Builds the Docker test image, runs monitor and inventory checks, executes Newman API tests, and stores reports/logs as downloadable GitHub Actions artifacts.
 
 **Pipeline steps:**
 1. Checkout code
-2. Build Docker image
+2. Build Docker multi-tool image
 3. Run Ubuy Monitor container
-4. Upload logs as artifacts
+4. Run JSON Inventory Check inside the container
+5. Run Newman API tests with HTML Extra Reporter
+6. Upload Newman HTML report
+7. Upload monitor logs as artifacts
 
 ---
 
