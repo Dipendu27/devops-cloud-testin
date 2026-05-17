@@ -67,12 +67,14 @@ Logs results with timestamps, raises alerts on failures, and is scheduled via cr
 
 ### 🐳 Dockerfile
 Containerizes the Ubuy monitor using Alpine Linux (5MB base image).  
-Installs curl and bash, copies the script, and runs it on container start.  
-Ensures identical execution across Mac, Ubuntu, and CI servers.
+Installs curl, bash, and jq, then copies the monitor plus inventory validation files into the image.
+
+Runs the monitor by default, while still allowing the inventory scan to run inside the same isolated environment.
 
 ```bash
 docker build -t ubuy-monitor:v1 .
 docker run ubuy-monitor:v1
+docker run ubuy-monitor:v1 bash inventory_check.sh
 ```
 
 ---
