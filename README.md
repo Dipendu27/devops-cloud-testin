@@ -42,6 +42,8 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 16:** API Test Reporting — Newman setup with HTML Extra Reporter dependency
 - [x] **Day 17:** JSON Inventory Validation — loop-based jq stock checks across all products
 - [x] **Day 18:** Local AI Benchmarking — Python script for Ollama response speed testing
+- [x] **Day 19:** Dynamic Data Parsing — Bash `for` loops combined with `jq` to iterate through JSON arrays dynamically
+- [x] **Day 20:** Containerization (Docker) — Eliminating "It works on my machine" by writing a Dockerfile (Alpine), building images, and running isolated environments
 
 ---
 
