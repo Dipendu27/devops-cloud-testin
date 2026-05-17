@@ -1,0 +1,18 @@
+{
+  "store": "Ubuy Kuwait",
+  "status": "online",
+  "products": [
+    {
+      "id": 101,
+      "name": "MacBook Pro M5",
+      "stock": 15,
+      "price": 2500
+    },
+    {
+      "id": 102,
+      "name": "Air Jordan 1 Low",
+      "stock": 0,
+      "price": 150
+    }
+  ]
+}

@@ -8,3 +8,6 @@
 tmp/
 temp.txtsecret.txt
 secret.txt
+
+# Ignore installed Node dependencies
+node_modules/
