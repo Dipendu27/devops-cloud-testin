@@ -40,7 +40,7 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 14:** CI/CD with GitHub Actions — auto build & test on every push/PR
 - [x] **Day 15:** AWS Cloud Deployment — EC2 launch, SSH, clone repo, run Docker in cloud
 - [x] **Day 16:** API Test Reporting — Newman setup with HTML Extra Reporter dependency
-- [x] **Day 17:** JSON Inventory Validation — jq-based stock checks with failure exits
+- [x] **Day 17:** JSON Inventory Validation — loop-based jq stock checks across all products
 - [x] **Day 18:** Local AI Benchmarking — Python script for Ollama response speed testing
 
 ---
@@ -103,14 +103,17 @@ Uses `nc` (Netcat) to verify if service ports (like 443 for HTTPS) are open on t
 Hits the GitHub API endpoint, validates 200 OK status, and uses environment variables for target URLs.
 
 ### 📦 Inventory JSON Validation (`inventory_check.sh`, `ubuy_inventory.json`)
-Validates product availability from a sample Ubuy inventory JSON file using `jq`.
+Validates product availability across every product in a sample Ubuy inventory JSON file using `jq`.
 
-The script checks the Air Jordan stock count and exits with a failure code when the product is out of stock, making it suitable for CI/CD quality gates.
+The script counts products dynamically, loops through each item, and prints either an OK message for available stock or an alert when a product is out of stock.
 
 ```bash
 ./inventory_check.sh
-# Running API JSON Validation...
-# CRITICAL ALERT: Air Jordan 1 Low is out of stock! (Stock: 0)
+# Starting Full Inventory Scan...
+# OK: MacBook Pro M5 is in stock (Qty: 15).
+# ALERT: Air Jordan 1 Low is out of stock!
+# OK: iPhone 15 is in stock (Qty: 37).
+# Scan Complete.
 ```
 
 ### 🧪 Newman HTML Reporting (`package.json`, `package-lock.json`)

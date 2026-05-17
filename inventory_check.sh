@@ -1,20 +1,26 @@
 #!/bin/bash
 
-# Target file (in a real scenario, this would be a curl command to an API)
 DATA_FILE="ubuy_inventory.json"
+echo "Starting Full Inventory Scan..."
+echo "-------------------------------"
 
-echo "Running API JSON Validation..."
+# 1. Ask jq how many products are in the array
+TOTAL_ITEMS=$(cat $DATA_FILE | jq '.products | length')
 
-# Extract the stock value of the Air Jordans (Index 1)
-# The -r flag gives us "raw" output without quotation marks
-STOCK=$(cat $DATA_FILE | jq -r '.products[1].stock')
-ITEM_NAME=$(cat $DATA_FILE | jq -r '.products[1].name')
+# 2. Start a loop from 0 to (TOTAL_ITEMS - 1)
+for (( i=0; i<$TOTAL_ITEMS; i++ ))
+do
+    # Use the variable $i to dynamically change the index
+    NAME=$(cat $DATA_FILE | jq -r ".products[$i].name")
+    STOCK=$(cat $DATA_FILE | jq -r ".products[$i].stock")
 
-# Conditional Logic: If stock is 0, fail the test
-if [ "$STOCK" -eq 0 ]; then
-    echo "❌ CRITICAL ALERT: $ITEM_NAME is out of stock! (Stock: $STOCK)"
-    exit 1
-else
-    echo "✅ SUCCESS: $ITEM_NAME is in stock. (Stock: $STOCK)"
-    exit 0
-fi
+    # 3. Check the stock for the current item
+    if [ "$STOCK" -eq 0 ]; then
+        echo "❌ ALERT: $NAME is out of stock!"
+    else
+        echo "✅ OK: $NAME is in stock (Qty: $STOCK)."
+    fi
+done
+
+echo "-------------------------------"
+echo "Scan Complete."
