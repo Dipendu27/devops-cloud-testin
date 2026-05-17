@@ -1,31 +1,39 @@
-name: Ubuy Monitor CI
+name: Ubuy Master Pipeline
 
 on:
   push:
-    branches: [ main, feature/* ]
+    branches: [ main, "feature/*" ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  run-monitor:
+  run-all-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: docker build -t ubuy-monitor:v1 .
+      # 1. Build your newly upgraded "Swiss Army Knife" container
+      - name: 🐳 Build Docker Multi-Tool Image
+        run: docker build -t devops-tester .
 
-      - name: Run Ubuy Monitor
-        run: docker run ubuy-monitor:v1 || true
+      # 2. Run the Site Monitor (Notice the || true you added so it doesn't block the next steps if a site is down)
+      - name: 🌐 Run Ubuy Monitor
+        run: docker run devops-tester || true
 
-      - name: Run Newman API Tests
+      # 3. NEW: Run the dynamic JSON check overriding the default container command
+      - name: 📦 Run JSON Inventory Check
+        run: docker run devops-tester bash inventory_check.sh || true
+
+      # 4. Your awesome Newman API testing block
+      - name: 🧪 Run Newman API Tests
         run: |
           npm install newman newman-reporter-htmlextra
           ./node_modules/.bin/newman run ubuy_api_tests.json -r cli,htmlextra --reporter-htmlextra-export ubuy_report.html
 
-      - name: Upload Newman Report
+      # 5. Save the HTML report so you can download it from GitHub
+      - name: 📊 Upload Newman Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -33,7 +41,8 @@ jobs:
           path: ubuy_report.html
           if-no-files-found: ignore
 
-      - name: Upload logs as artifact
+      # 6. Save the text logs
+      - name: 📝 Upload logs as artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
