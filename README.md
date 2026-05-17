@@ -15,7 +15,9 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 | **Containerization** | Docker (Alpine Linux) |
 | **CI/CD** | GitHub Actions |
 | **Cloud** | AWS EC2 (Mumbai Region) |
-| **Monitoring** | curl, nc (Netcat), cron |
+| **Monitoring & Validation** | curl, nc (Netcat), cron, jq |
+| **API Testing** | Postman Collections, Newman, Newman HTML Extra Reporter |
+| **AI Benchmarking** | Python, Ollama |
 | **Editor** | VS Code |
 
 ---
@@ -37,6 +39,9 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 13:** Docker & Containerization — Dockerfile, Alpine image, build & run containers
 - [x] **Day 14:** CI/CD with GitHub Actions — auto build & test on every push/PR
 - [x] **Day 15:** AWS Cloud Deployment — EC2 launch, SSH, clone repo, run Docker in cloud
+- [x] **Day 16:** API Test Reporting — Newman setup with HTML Extra Reporter dependency
+- [x] **Day 17:** JSON Inventory Validation — jq-based stock checks with failure exits
+- [x] **Day 18:** Local AI Benchmarking — Python script for Ollama response speed testing
 
 ---
 
@@ -96,6 +101,33 @@ Uses `nc` (Netcat) to verify if service ports (like 443 for HTTPS) are open on t
 
 ### 🔗 API Health Check (`api_check.sh`)
 Hits the GitHub API endpoint, validates 200 OK status, and uses environment variables for target URLs.
+
+### 📦 Inventory JSON Validation (`inventory_check.sh`, `ubuy_inventory.json`)
+Validates product availability from a sample Ubuy inventory JSON file using `jq`.
+
+The script checks the Air Jordan stock count and exits with a failure code when the product is out of stock, making it suitable for CI/CD quality gates.
+
+```bash
+./inventory_check.sh
+# Running API JSON Validation...
+# CRITICAL ALERT: Air Jordan 1 Low is out of stock! (Stock: 0)
+```
+
+### 🧪 Newman HTML Reporting (`package.json`, `package-lock.json`)
+Adds `newman-reporter-htmlextra` so API test runs can generate richer HTML reports from Newman collections.
+
+```bash
+npm install
+newman run ubuy_api_tests.json -r cli,htmlextra
+```
+
+### ⚡ Ollama Model Benchmark (`benchmark.py`)
+Benchmarks a local Ollama model by calling the generate API, measuring total response time, token count, and tokens per second.
+
+```bash
+ollama pull llama3.2
+python3 benchmark.py
+```
 
 ---
 
