@@ -9,5 +9,8 @@ tmp/
 temp.txtsecret.txt
 secret.txt
 
+# Ignore private key material
+*.pem
+
 # Ignore installed Node dependencies
 node_modules/

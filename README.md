@@ -14,7 +14,7 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 | **Version Control** | Git, GitHub, Pull Request Workflow |
 | **Containerization** | Docker (Alpine Linux) |
 | **CI/CD** | GitHub Actions |
-| **Cloud** | AWS EC2 (Mumbai Region) |
+| **Cloud** | AWS EC2 & S3 (Mumbai Region), IAM Secure Roles |
 | **Monitoring & Validation** | curl, nc (Netcat), cron, jq |
 | **API Testing** | Postman Collections, Newman, Newman HTML Extra Reporter |
 | **AI Benchmarking** | Python, Ollama |
@@ -36,15 +36,19 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 10:** Log Analysis — tail -f, grep -i, less, real-time error hunting
 - [x] **Day 11:** Task Automation — cron scheduling, absolute paths, output redirection
 - [x] **Day 12:** Advanced Bash Scripting — variables, arrays, loops, conditionals, functions
-- [x] **Day 13:** Docker & Containerization — Dockerfile, Alpine image, build & run containers
-- [x] **Day 14:** CI/CD with GitHub Actions — auto build & test on every push/PR
-- [x] **Day 15:** AWS Cloud Deployment — EC2 launch, SSH, clone repo, run Docker in cloud
+- [x] **Day 13:** CI/CD Fundamentals — GitHub Actions introduction
+- [x] **Day 14:** CI/CD Automation — auto build & test on every push/PR
+- [x] **Day 15:** AWS Cloud Deployment — EC2 launch, SSH, clone repo
 - [x] **Day 16:** API Test Reporting — Newman setup with HTML Extra Reporter dependency
-- [x] **Day 17:** JSON Inventory Validation — loop-based jq stock checks across all products
+- [x] **Day 17:** JSON Inventory Validation — Introduction to `jq` for extracting specific API data points
 - [x] **Day 18:** Local AI Benchmarking — Python script for Ollama response speed testing
 - [x] **Day 19:** Dynamic Data Parsing — Bash `for` loops combined with `jq` to iterate through JSON arrays dynamically
 - [x] **Day 20:** Containerization (Docker) — Eliminating "It works on my machine" by writing a Dockerfile (Alpine), building images, and running isolated environments
-- [x] **Day 21:** Master CI/CD Pipeline — GitHub Actions builds the Docker test image, runs monitor checks, validates inventory JSON, executes Newman API tests, and uploads reports/logs as artifacts
+- [x] **Day 21:** CI/CD Master Pipeline — Merging Docker execution, Newman API testing, and automated artifact uploads into a unified GitHub Actions workflow
+- [x] **Day 22:** Production Cloud Infrastructure — Provisioning an AWS EC2 Ubuntu instance in the Mumbai region and configuring SSH key access
+- [x] **Day 23:** Cloud-Native Environments — Installing Docker on EC2, managing Linux user group security privileges, and executing isolated containers in production
+- [x] **Day 24:** Cloud Observability & Security — Building passwordless infrastructure using AWS IAM roles and routing system outputs securely to Amazon S3
+- [x] **Day 25:** Enterprise Pipeline Orchestration — Writing an automated wrapper script to capture real-time test executions, format timestamped metrics, and handle zero-touch object archiving to S3
 
 ---
 
@@ -66,33 +70,39 @@ Logs results with timestamps, raises alerts on failures, and is scheduled via cr
 
 ---
 
-### 🐳 Dockerfile
-Containerizes the Ubuy monitor using Alpine Linux (5MB base image).  
-Installs curl, bash, and jq, then copies the monitor plus inventory validation files into the image.
+### 🐳 Docker Containers (`Dockerfile`)
+Containerizes automation scripts (like the Ubuy monitor and JSON inventory checker) using Alpine Linux (5MB base image).
 
-Runs the monitor by default, while still allowing the inventory scan to run inside the same isolated environment.
+Installs required dependencies (`curl`, `bash`, `jq`), copies the local scripts, and runs them isolated on container start.
+
+Ensures perfectly identical execution across my MacBook, Ubuntu, and CI servers.
 
 ```bash
-docker build -t ubuy-monitor:v1 .
-docker run ubuy-monitor:v1
-docker run ubuy-monitor:v1 bash inventory_check.sh
+docker build -t ubuy-monitor-app .
+docker run ubuy-monitor-app
 ```
 
 ---
 
 ### ⚙️ GitHub Actions CI/CD (`.github/workflows/ubuy-monitor.yml`)
-Automated master pipeline that triggers on every `git push` and Pull Request.
+Automated Master Pipeline that triggers on every `git push` and Pull Request.
 
-Builds the Docker test image, runs monitor and inventory checks, executes Newman API tests, and stores reports/logs as downloadable GitHub Actions artifacts.
+Builds the Docker multi-tool environment, runs concurrent health monitors, runs Node.js/Newman API collections, and exports downloadable HTML test reports directly to GitHub.
 
-**Pipeline steps:**
-1. Checkout code
-2. Build Docker multi-tool image
-3. Run Ubuy Monitor container
-4. Run JSON Inventory Check inside the container
-5. Run Newman API tests with HTML Extra Reporter
-6. Upload Newman HTML report
-7. Upload monitor logs as artifacts
+---
+
+### ☁️ AWS Cloud Orchestration (`cloud_test_runner.sh`)
+A production-grade shell wrapper deployed on AWS EC2 that handles hands-off continuous testing and observability. It isolates execution within a Docker runtime, captures log data, and utilizes IAM security credentials to auto-archive timestamped files directly into Amazon S3.
+
+```bash
+./cloud_test_runner.sh
+# ==========================================
+# 🚀 [AWS Cloud Orchestration] Starting Automated Run
+# 📦 Running test suite inside Docker container...
+# ☁️ Archiving artifacts to Amazon S3...
+# ✅ SUCCESS: Log archived safely to s3://dipendu-qa-test-artifacts/logs/
+# ==========================================
+```
 
 ---
 
@@ -111,16 +121,16 @@ Uses `nc` (Netcat) to verify if service ports (like 443 for HTTPS) are open on t
 ### 🔗 API Health Check (`api_check.sh`)
 Hits the GitHub API endpoint, validates 200 OK status, and uses environment variables for target URLs.
 
-### 📦 Inventory JSON Validation (`inventory_check.sh`, `ubuy_inventory.json`)
-Validates product availability across every product in a sample Ubuy inventory JSON file using `jq`.
+### 📦 Dynamic JSON Validation (`inventory_check.sh`, `ubuy_inventory.json`)
+Validates product availability across a dynamic inventory JSON file using `jq` and Bash loops.
 
-The script counts products dynamically, loops through each item, and prints either an OK message for available stock or an alert when a product is out of stock.
+The script asks `jq` for the array length, loops through each item dynamically (preventing hardcoded index errors), and prints either an OK message for available stock or a critical alert when a product is out of stock.
 
 ```bash
 ./inventory_check.sh
 # Starting Full Inventory Scan...
 # OK: MacBook Pro M5 is in stock (Qty: 15).
-# ALERT: Air Jordan 1 Low is out of stock!
+# ❌ ALERT: Air Jordan 1 Low is out of stock!
 # OK: iPhone 15 is in stock (Qty: 37).
 # Scan Complete.
 ```
@@ -149,15 +159,15 @@ Scripts and Docker containers have been deployed to and verified on **AWS EC2 (M
 
 ```bash
 # SSH into EC2
-ssh -i ~/.ssh/devops-key.pem ubuntu@<EC2-PUBLIC-IP>
+ssh -i ~/.ssh/devops-cloud-key.pem ubuntu@<EC2-PUBLIC-IP>
 
 # Clone repo on cloud server
 git clone https://github.com/Dipendu27/devops-cloud-testin.git
 
 # Run Docker container in cloud
-docker build -t ubuy-monitor:v1 .
-docker run ubuy-monitor:v1
-# Result: All 200 OK from AWS Mumbai
+docker build -t ubuy-monitor-app .
+docker run ubuy-monitor-app
+# Result: Execution identical to local environment
 ```
 
 ---
