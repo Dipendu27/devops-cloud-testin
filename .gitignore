@@ -6,8 +6,14 @@
 
 # Ignore temporary files
 tmp/
-temp.txtsecret.txt
+temp.txt
 secret.txt
+
+# Ignore private key material
+*.pem
+*.key
+.env
+.env.*
 
 # Ignore installed Node dependencies
 node_modules/

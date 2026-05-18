@@ -1,0 +1,15 @@
+.git/
+.github/
+.DS_Store
+
+# Local dependencies and generated files
+node_modules/
+tmp/
+*.log
+
+# Secrets and private key material
+secret.txt
+*.pem
+*.key
+.env
+.env.*
