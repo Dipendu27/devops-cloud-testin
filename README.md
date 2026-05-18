@@ -15,6 +15,7 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 | **Containerization** | Docker (Alpine Linux) |
 | **CI/CD** | GitHub Actions |
 | **Cloud** | AWS EC2 & S3 (Mumbai Region), IAM Secure Roles |
+| **Scheduling** | Linux Cron (local & cloud), @reboot jobs |
 | **Monitoring & Validation** | curl, nc (Netcat), cron, jq |
 | **API Testing** | Postman Collections, Newman, Newman HTML Extra Reporter |
 | **AI Benchmarking** | Python, Ollama |
@@ -39,16 +40,17 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 13:** CI/CD Fundamentals — GitHub Actions introduction
 - [x] **Day 14:** CI/CD Automation — auto build & test on every push/PR
 - [x] **Day 15:** AWS Cloud Deployment — EC2 launch, SSH, clone repo
-- [x] **Day 16:** API Test Reporting — Newman setup with HTML Extra Reporter dependency
-- [x] **Day 17:** JSON Inventory Validation — Introduction to `jq` for extracting specific API data points
+- [x] **Day 16:** API Test Reporting — Newman setup with HTML Extra Reporter
+- [x] **Day 17:** JSON Inventory Validation — `jq` for extracting specific API data points
 - [x] **Day 18:** Local AI Benchmarking — Python script for Ollama response speed testing
-- [x] **Day 19:** Dynamic Data Parsing — Bash `for` loops combined with `jq` to iterate through JSON arrays dynamically
-- [x] **Day 20:** Containerization (Docker) — Eliminating "It works on my machine" by writing a Dockerfile (Alpine), building images, and running isolated environments
-- [x] **Day 21:** CI/CD Master Pipeline — Merging Docker execution, Newman API testing, and automated artifact uploads into a unified GitHub Actions workflow
-- [x] **Day 22:** Production Cloud Infrastructure — Provisioning an AWS EC2 Ubuntu instance in the Mumbai region and configuring SSH key access
-- [x] **Day 23:** Cloud-Native Environments — Installing Docker on EC2, managing Linux user group security privileges, and executing isolated containers in production
-- [x] **Day 24:** Cloud Observability & Security — Building passwordless infrastructure using AWS IAM roles and routing system outputs securely to Amazon S3
-- [x] **Day 25:** Enterprise Pipeline Orchestration — Writing an automated wrapper script to capture real-time test executions, format timestamped metrics, and handle zero-touch object archiving to S3
+- [x] **Day 19:** Dynamic Data Parsing — Bash `for` loops combined with `jq` for JSON arrays
+- [x] **Day 20:** Containerization (Docker) — Dockerfile (Alpine), building images, isolated environments
+- [x] **Day 21:** CI/CD Master Pipeline — Docker, Newman, and artifact uploads in unified GitHub Actions workflow
+- [x] **Day 22:** Production Cloud Infrastructure — AWS EC2 Ubuntu provisioning, SSH key access
+- [x] **Day 23:** Cloud-Native Environments — Docker on EC2, Linux user group security, isolated containers
+- [x] **Day 24:** Cloud Observability & Security — AWS IAM roles, passwordless infrastructure, S3 routing
+- [x] **Day 25:** Enterprise Pipeline Orchestration — automated wrapper script, timestamped metrics, zero-touch S3 archiving
+- [x] **Day 26:** Linux Cron Jobs in the Cloud — scheduling `*/30` and `@reboot` cron jobs on EC2 for 24/7 unattended testing
 
 ---
 
@@ -63,19 +65,39 @@ Logs results with timestamps, raises alerts on failures, and is scheduled via cr
 
 ```bash
 ./ubuy_monitor.sh
-# [2026-05-11 02:01:45] OK [200] — https://www.ubuy.co.in/category/laptops-21457
-# [2026-05-11 02:01:45] OK [200] — https://www.ubuy.co.in/brand/3m
-# [2026-05-11 02:01:45] OK [200] — https://www.ubuy.co.in/category/keyboards-14289
+# [2026-05-18 10:08:28] OK [200] — https://www.ubuy.co.in/category/laptops-21457
+# [2026-05-18 10:08:28] OK [200] — https://www.ubuy.co.in/brand/3m
+# [2026-05-18 10:08:28] OK [200] — https://www.ubuy.co.in/category/keyboards-14289
+```
+
+---
+
+### ☁️ AWS Cloud Orchestration (`cloud_test_runner.sh`)
+A production-grade shell wrapper deployed on AWS EC2 for hands-off continuous testing.
+
+Executes the test suite inside a Docker container, captures timestamped logs, and auto-archives to Amazon S3 using IAM roles — zero hardcoded credentials.
+
+Scheduled via cron to run every 30 minutes and on every EC2 reboot.
+
+```bash
+./cloud_test_runner.sh
+# ==========================================
+# 🚀 [AWS Cloud Orchestration] Starting Automated Run
+# ⏰ Timestamp: 2026-05-18_10-08-28
+# 📦 Running test suite inside Docker container...
+# ☁️ Archiving artifacts to Amazon S3...
+# ✅ SUCCESS: Log archived safely to s3://dipendu-qa-test-artifacts/logs/
+# ==========================================
 ```
 
 ---
 
 ### 🐳 Docker Containers (`Dockerfile`)
-Containerizes automation scripts (like the Ubuy monitor and JSON inventory checker) using Alpine Linux (5MB base image).
+Containerizes automation scripts using Alpine Linux (5MB base image).
 
-Installs required dependencies (`curl`, `bash`, `jq`), copies the local scripts, and runs them isolated on container start.
+Installs `curl`, `bash`, `jq`, copies scripts, and runs them isolated on container start.
 
-Ensures perfectly identical execution across my MacBook, Ubuntu, and CI servers.
+Ensures identical execution across MacBook, Ubuntu EC2, and CI servers.
 
 ```bash
 docker build -t ubuy-monitor-app .
@@ -85,66 +107,50 @@ docker run ubuy-monitor-app
 ---
 
 ### ⚙️ GitHub Actions CI/CD (`.github/workflows/ubuy-monitor.yml`)
-Automated Master Pipeline that triggers on every `git push` and Pull Request.
+Automated Master Pipeline triggering on every `git push` and Pull Request:
 
-Builds the Docker multi-tool environment, runs concurrent health monitors, runs Node.js/Newman API collections, and exports downloadable HTML test reports directly to GitHub.
+1. Checkout code
+2. Build Docker image
+3. Run Ubuy Monitor container
+4. Run Newman API test suite
+5. Upload HTML test report as artifact
+6. Upload logs as artifact
 
 ---
 
-### ☁️ AWS Cloud Orchestration (`cloud_test_runner.sh`)
-A production-grade shell wrapper deployed on AWS EC2 that handles hands-off continuous testing and observability. It isolates execution within a Docker runtime, captures log data, and utilizes IAM security credentials to auto-archive timestamped files directly into Amazon S3.
+### 🧪 Newman API Test Suite (`ubuy_api_tests.json`)
+Postman collection written from scratch, executed via Newman CLI.
+
+Tests 3 endpoints with 6 assertions covering status codes, response times, and content types.
+
+Generates professional HTML reports via `newman-reporter-htmlextra`.
 
 ```bash
-./cloud_test_runner.sh
-# ==========================================
-# 🚀 [AWS Cloud Orchestration] Starting Automated Run
-# 📦 Running test suite inside Docker container...
-# ☁️ Archiving artifacts to Amazon S3...
-# ✅ SUCCESS: Log archived safely to s3://dipendu-qa-test-artifacts/logs/
-# ==========================================
+./node_modules/.bin/newman run ubuy_api_tests.json -r htmlextra --reporter-htmlextra-export ubuy_report.html
+# 3 requests | 6 assertions | 0 failures | avg response: 498ms
 ```
 
 ---
-
-### 🔍 Smoke Test Script (`smoke_test.sh`)
-Pings multiple domains to verify basic connectivity — simulates a cloud health check.
-
-### 🌐 Web Monitor (`web_test.sh`)
-Uses `curl` to validate HTTP status codes (200, 404, 405) for backend service reliability.
-
-### 🏥 Site Health Checker (`check_site.sh`)
-Automated curl-based script that verifies if websites are reachable (200 OK).
-
-### 🔌 Network Port Scanner (`port_check.sh`)
-Uses `nc` (Netcat) to verify if service ports (like 443 for HTTPS) are open on target servers.
-
-### 🔗 API Health Check (`api_check.sh`)
-Hits the GitHub API endpoint, validates 200 OK status, and uses environment variables for target URLs.
 
 ### 📦 Dynamic JSON Validation (`inventory_check.sh`, `ubuy_inventory.json`)
 Validates product availability across a dynamic inventory JSON file using `jq` and Bash loops.
 
-The script asks `jq` for the array length, loops through each item dynamically (preventing hardcoded index errors), and prints either an OK message for available stock or a critical alert when a product is out of stock.
-
 ```bash
 ./inventory_check.sh
-# Starting Full Inventory Scan...
 # OK: MacBook Pro M5 is in stock (Qty: 15).
 # ❌ ALERT: Air Jordan 1 Low is out of stock!
 # OK: iPhone 15 is in stock (Qty: 37).
-# Scan Complete.
 ```
 
-### 🧪 Newman HTML Reporting (`package.json`, `package-lock.json`)
-Adds `newman-reporter-htmlextra` so API test runs can generate richer HTML reports from Newman collections.
+---
 
-```bash
-npm install
-newman run ubuy_api_tests.json -r cli,htmlextra
-```
+### 🔍 Smoke Test (`smoke_test.sh`) · 🌐 Web Monitor (`web_test.sh`) · 🏥 Site Health Checker (`check_site.sh`) · 🔌 Port Scanner (`port_check.sh`) · 🔗 API Health Check (`api_check.sh`)
+A suite of targeted Bash scripts covering connectivity, HTTP validation, port scanning, and API health — built progressively across Days 1-11.
+
+---
 
 ### ⚡ Ollama Model Benchmark (`benchmark.py`)
-Benchmarks a local Ollama model by calling the generate API, measuring total response time, token count, and tokens per second.
+Benchmarks a local Ollama LLM by measuring response time, token count, and tokens per second.
 
 ```bash
 ollama pull llama3.2
@@ -155,19 +161,21 @@ python3 benchmark.py
 
 ## ☁️ Cloud Deployment
 
-Scripts and Docker containers have been deployed to and verified on **AWS EC2 (Mumbai Region)**:
+Scripts and Docker containers deployed and verified on **AWS EC2 (Mumbai Region)**
+
+with automated S3 artifact archiving and 24/7 cron scheduling:
 
 ```bash
 # SSH into EC2
 ssh -i ~/.ssh/devops-cloud-key.pem ubuntu@<EC2-PUBLIC-IP>
 
-# Clone repo on cloud server
-git clone https://github.com/Dipendu27/devops-cloud-testin.git
+# Cron jobs active on EC2
+crontab -l
+# */30 * * * * /home/ubuntu/devops-cloud-testin/cloud_test_runner.sh >> cron.log 2>&1
+# @reboot  /home/ubuntu/devops-cloud-testin/cloud_test_runner.sh >> cron.log 2>&1
 
-# Run Docker container in cloud
-docker build -t ubuy-monitor-app .
-docker run ubuy-monitor-app
-# Result: Execution identical to local environment
+# Verify S3 artifacts
+aws s3 ls s3://dipendu-qa-test-artifacts/logs/
 ```
 
 ---
@@ -175,6 +183,7 @@ docker run ubuy-monitor-app
 ## 🎯 Target Roles
 
 QA Engineer · Cloud Automation Tester · Game Functionality Tester  
+Targeting: **InnoWave · iNetFrame · Wipro · Rockstar Games**
 
 ---
 
