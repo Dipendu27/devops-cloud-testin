@@ -15,8 +15,9 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 | **Containerization** | Docker (Alpine Linux) |
 | **CI/CD** | GitHub Actions |
 | **Cloud** | AWS EC2 & S3 (Mumbai Region), IAM Secure Roles |
+| **Monitoring & Alerting** | AWS CloudWatch, boto3, CPU & Status Alarms |
 | **Scheduling** | Linux Cron (local & cloud), @reboot jobs |
-| **Monitoring & Validation** | curl, nc (Netcat), cron, jq |
+| **Validation** | curl, nc (Netcat), jq |
 | **API Testing** | Postman Collections, Newman, Newman HTML Extra Reporter |
 | **AI Benchmarking** | Python, Ollama |
 | **Editor** | VS Code |
@@ -50,16 +51,17 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 23:** Cloud-Native Environments — Docker on EC2, Linux user group security, isolated containers
 - [x] **Day 24:** Cloud Observability & Security — AWS IAM roles, passwordless infrastructure, S3 routing
 - [x] **Day 25:** Enterprise Pipeline Orchestration — automated wrapper script, timestamped metrics, zero-touch S3 archiving
-- [x] **Day 26:** Linux Cron Jobs in the Cloud — scheduling `*/30` and `@reboot` cron jobs on EC2 for 24/7 unattended testing
+- [x] **Day 26:** Linux Cron Jobs in the Cloud — `*/30` and `@reboot` cron jobs on EC2 for 24/7 unattended testing
+- [x] **Day 27:** AWS CloudWatch Monitoring — CPU and status check alarms via AWS CLI, IAM role expansion, metric observability
 
 ---
 
 ## 📂 Project Highlights
 
 ### 🛒 Ubuy E-Commerce Monitor (`ubuy_monitor.sh`)
-An advanced Bash automation script that monitors live e-commerce endpoints on Ubuy.  
-Uses functions, arrays, for loops, and conditional HTTP status handling.  
-Logs results with timestamps, raises alerts on failures, and is scheduled via cron to run every 30 minutes.
+Advanced Bash script monitoring live Ubuy endpoints with functions, arrays, loops, and conditional HTTP handling.
+
+Logs timestamped results, raises alerts on failures, scheduled via cron every 30 minutes.
 
 **HTTP codes handled:** 200 OK, 301 Redirect, 403 Blocked, 404 Not Found, 429 Rate Limited
 
@@ -73,11 +75,11 @@ Logs results with timestamps, raises alerts on failures, and is scheduled via cr
 ---
 
 ### ☁️ AWS Cloud Orchestration (`cloud_test_runner.sh`)
-A production-grade shell wrapper deployed on AWS EC2 for hands-off continuous testing.
+Production-grade shell wrapper on AWS EC2 for zero-touch continuous testing.
 
-Executes the test suite inside a Docker container, captures timestamped logs, and auto-archives to Amazon S3 using IAM roles — zero hardcoded credentials.
+Executes test suite inside Docker, captures timestamped logs, auto-archives to S3 via IAM roles.
 
-Scheduled via cron to run every 30 minutes and on every EC2 reboot.
+Scheduled via cron every 30 minutes and on every EC2 reboot.
 
 ```bash
 ./cloud_test_runner.sh
@@ -92,12 +94,34 @@ Scheduled via cron to run every 30 minutes and on every EC2 reboot.
 
 ---
 
+### 📊 CloudWatch Monitoring (`create_alarm.sh`)
+Two production alarms created programmatically through AWS CLI:
+
+- **EC2-High-CPU** — triggers when CPU exceeds 80% over two 5-minute periods
+- **EC2-Status-Check-Failed** — triggers immediately on instance health failure
+
+```bash
+# EC2-High-CPU Alarm
+aws cloudwatch put-metric-alarm \
+  --alarm-name "EC2-High-CPU" \
+  --metric-name CPUUtilization \
+  --threshold 80 \
+  --comparison-operator GreaterThanThreshold
+
+# EC2-Status-Check-Failed Alarm
+aws cloudwatch put-metric-alarm \
+  --alarm-name "EC2-Status-Check-Failed" \
+  --metric-name StatusCheckFailed \
+  --threshold 1 \
+  --comparison-operator GreaterThanOrEqualToThreshold
+```
+
+---
+
 ### 🐳 Docker Containers (`Dockerfile`)
-Containerizes automation scripts using Alpine Linux (5MB base image).
+Alpine-based containerization ensuring identical execution across Mac, Ubuntu EC2, and CI servers.
 
 Installs `curl`, `bash`, `jq`, copies scripts, and runs them isolated on container start.
-
-Ensures identical execution across MacBook, Ubuntu EC2, and CI servers.
 
 ```bash
 docker build -t ubuy-monitor-app .
@@ -107,33 +131,28 @@ docker run ubuy-monitor-app
 ---
 
 ### ⚙️ GitHub Actions CI/CD (`.github/workflows/ubuy-monitor.yml`)
-Automated Master Pipeline triggering on every `git push` and Pull Request:
+Full automated pipeline triggering on every `git push` and Pull Request:
 
 1. Checkout code
 2. Build Docker image
 3. Run Ubuy Monitor container
 4. Run Newman API test suite
-5. Upload HTML test report as artifact
-6. Upload logs as artifact
+5. Upload HTML report & logs as artifacts
 
 ---
 
 ### 🧪 Newman API Test Suite (`ubuy_api_tests.json`)
-Postman collection written from scratch, executed via Newman CLI.
-
-Tests 3 endpoints with 6 assertions covering status codes, response times, and content types.
-
-Generates professional HTML reports via `newman-reporter-htmlextra`.
+Postman collection with 3 endpoints, 6 assertions, HTML report generation.
 
 ```bash
 ./node_modules/.bin/newman run ubuy_api_tests.json -r htmlextra --reporter-htmlextra-export ubuy_report.html
-# 3 requests | 6 assertions | 0 failures | avg response: 498ms
+# 3 requests | 6 assertions | 0 failures | avg: 498ms
 ```
 
 ---
 
-### 📦 Dynamic JSON Validation (`inventory_check.sh`, `ubuy_inventory.json`)
-Validates product availability across a dynamic inventory JSON file using `jq` and Bash loops.
+### 📦 Dynamic JSON Validator (`inventory_check.sh`, `ubuy_inventory.json`)
+Parses live inventory arrays with `jq` loops, raises out-of-stock alerts.
 
 ```bash
 ./inventory_check.sh
@@ -144,13 +163,8 @@ Validates product availability across a dynamic inventory JSON file using `jq` a
 
 ---
 
-### 🔍 Smoke Test (`smoke_test.sh`) · 🌐 Web Monitor (`web_test.sh`) · 🏥 Site Health Checker (`check_site.sh`) · 🔌 Port Scanner (`port_check.sh`) · 🔗 API Health Check (`api_check.sh`)
-A suite of targeted Bash scripts covering connectivity, HTTP validation, port scanning, and API health — built progressively across Days 1-11.
-
----
-
-### ⚡ Ollama Model Benchmark (`benchmark.py`)
-Benchmarks a local Ollama LLM by measuring response time, token count, and tokens per second.
+### ⚡ LLM Benchmark (`benchmark.py`)
+Measures Ollama model response time, token count, and tokens/sec.
 
 ```bash
 ollama pull llama3.2
@@ -159,20 +173,20 @@ python3 benchmark.py
 
 ---
 
-## ☁️ Cloud Deployment
-
-Scripts and Docker containers deployed and verified on **AWS EC2 (Mumbai Region)**
-
-with automated S3 artifact archiving and 24/7 cron scheduling:
+## ☁️ Cloud Deployment & Monitoring
 
 ```bash
 # SSH into EC2
 ssh -i ~/.ssh/devops-cloud-key.pem ubuntu@<EC2-PUBLIC-IP>
 
-# Cron jobs active on EC2
+# Active cron jobs on EC2
 crontab -l
 # */30 * * * * /home/ubuntu/devops-cloud-testin/cloud_test_runner.sh >> cron.log 2>&1
 # @reboot  /home/ubuntu/devops-cloud-testin/cloud_test_runner.sh >> cron.log 2>&1
+
+# CloudWatch alarms status
+# EC2-High-CPU              | OK | CPUUtilization > 80%
+# EC2-Status-Check-Failed   | OK | StatusCheckFailed >= 1
 
 # Verify S3 artifacts
 aws s3 ls s3://dipendu-qa-test-artifacts/logs/

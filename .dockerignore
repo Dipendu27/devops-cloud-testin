@@ -11,5 +11,10 @@ tmp/
 secret.txt
 *.pem
 *.key
+PAT.txt
+pat.txt
+token.txt
+tokens.txt
+*token*.txt
 .env
 .env.*
