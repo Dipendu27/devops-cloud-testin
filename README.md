@@ -197,7 +197,6 @@ aws s3 ls s3://dipendu-qa-test-artifacts/logs/
 ## 🎯 Target Roles
 
 QA Engineer · Cloud Automation Tester · Game Functionality Tester  
-Targeting: **InnoWave · iNetFrame · Wipro · Rockstar Games**
 
 ---
 
