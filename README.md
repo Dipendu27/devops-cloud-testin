@@ -15,8 +15,9 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 | **Containerization** | Docker (Alpine Linux) |
 | **CI/CD** | GitHub Actions |
 | **Cloud** | AWS EC2 & S3 (Mumbai Region), IAM Secure Roles |
-| **Monitoring & Alerting** | AWS CloudWatch, boto3, CPU & Status Alarms |
+| **Monitoring & Alerting** | AWS CloudWatch, AWS CLI, CPU & Status Alarms |
 | **Scheduling** | Linux Cron (local & cloud), @reboot jobs |
+| **Parallel Execution** | Bash background jobs, PID tracking, `wait` barriers |
 | **Validation** | curl, nc (Netcat), jq |
 | **API Testing** | Postman Collections, Newman, Newman HTML Extra Reporter |
 | **AI Benchmarking** | Python, Ollama |
@@ -53,6 +54,7 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 25:** Enterprise Pipeline Orchestration — automated wrapper script, timestamped metrics, zero-touch S3 archiving
 - [x] **Day 26:** Linux Cron Jobs in the Cloud — `*/30` and `@reboot` cron jobs on EC2 for 24/7 unattended testing
 - [x] **Day 27:** AWS CloudWatch Monitoring — CPU and status check alarms via AWS CLI, IAM role expansion, metric observability
+- [x] **Day 28:** Parallel Test Matrix — running monitor and inventory suites concurrently with background jobs, PID tracking, wait barriers, and parallel S3 uploads
 
 ---
 
@@ -90,6 +92,21 @@ Scheduled via cron every 30 minutes and on every EC2 reboot.
 # ☁️ Archiving artifacts to Amazon S3...
 # ✅ SUCCESS: Log archived safely to s3://dipendu-qa-test-artifacts/logs/
 # ==========================================
+```
+
+---
+
+### ⚡ Parallel Test Matrix (`parallel_runner.sh`)
+High-performance Bash runner that launches the live Ubuy monitor and dynamic inventory validator at the same time.
+
+It captures each background process ID, waits for both suites to finish, records separate timestamped logs, and uploads both artifacts to S3 concurrently.
+
+```bash
+./parallel_runner.sh
+# ⚡ [High-Performance DevOps] Launching Parallel Test Matrix
+# [Background Job Started] PID: 12345
+# [Background Job Started] PID: 12346
+# Matrix Scan Complete. Total execution time optimized.
 ```
 
 ---
@@ -183,6 +200,9 @@ ssh -i ~/.ssh/devops-cloud-key.pem ubuntu@<EC2-PUBLIC-IP>
 crontab -l
 # */30 * * * * /home/ubuntu/devops-cloud-testin/cloud_test_runner.sh >> cron.log 2>&1
 # @reboot  /home/ubuntu/devops-cloud-testin/cloud_test_runner.sh >> cron.log 2>&1
+
+# Run optimized parallel test matrix
+./parallel_runner.sh
 
 # CloudWatch alarms status
 # EC2-High-CPU              | OK | CPUUtilization > 80%
