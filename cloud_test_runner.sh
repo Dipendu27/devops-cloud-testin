@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # --- CONFIGURATION ---
-BUCKET_NAME="${BUCKET_NAME:-dipendu-qa-test-artifacts}"
-IMAGE_NAME="${IMAGE_NAME:-ubuy-monitor-app}"
+BUCKET_NAME="dipendu-qa-test-artifacts"
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 LOG_FILE="inventory_run_${TIMESTAMP}.log"
 
@@ -13,7 +12,7 @@ echo "=========================================="
 
 # 1. Execute the core Docker test tool and dump output directly into the timestamped log
 echo "📦 Running test suite inside Docker container..."
-docker run "$IMAGE_NAME" bash inventory_check.sh > "$LOG_FILE" 2>&1
+docker run cloud-tester bash inventory_check.sh > "$LOG_FILE" 2>&1
 
 # Capture the exit status of the test suite execution
 TEST_EXIT_CODE=$?
