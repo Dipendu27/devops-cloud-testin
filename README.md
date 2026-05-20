@@ -18,6 +18,7 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 | **Monitoring & Alerting** | AWS CloudWatch, AWS CLI, CPU & Status Alarms |
 | **Scheduling** | Linux Cron (local & cloud), @reboot jobs |
 | **Parallel Execution** | Bash background jobs, PID tracking, `wait` barriers |
+| **Runtime Configuration** | Shell parameter expansion, environment variables, fallback defaults |
 | **Validation** | curl, nc (Netcat), jq |
 | **API Testing** | Postman Collections, Newman, Newman HTML Extra Reporter |
 | **AI Benchmarking** | Python, Ollama |
@@ -54,7 +55,8 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 25:** Enterprise Pipeline Orchestration — automated wrapper script, timestamped metrics, zero-touch S3 archiving
 - [x] **Day 26:** Linux Cron Jobs in the Cloud — `*/30` and `@reboot` cron jobs on EC2 for 24/7 unattended testing
 - [x] **Day 27:** AWS CloudWatch Monitoring — CPU and status check alarms via AWS CLI, IAM role expansion, metric observability
-- [x] **Day 28:** Parallel Test Matrix — running monitor and inventory suites concurrently with background jobs, PID tracking, wait barriers, environment fallbacks, and parallel S3 uploads
+- [x] **Day 28:** Parallel Test Matrix — running monitor and inventory suites concurrently with background jobs, PID tracking, wait barriers, and parallel S3 uploads
+- [x] **Day 29:** Parameterized Runtime Configuration — environment-driven S3 bucket, deployment tag, and Docker image settings with safe shell fallback defaults
 
 ---
 
@@ -99,11 +101,14 @@ Scheduled via cron every 30 minutes and on every EC2 reboot.
 ### ⚡ Parallel Test Matrix (`parallel_runner.sh`)
 High-performance Bash runner that launches the live Ubuy monitor and dynamic inventory validator at the same time.
 
-It captures each background process ID, waits for both suites to finish, records separate timestamped logs, and uploads both artifacts to environment-specific S3 paths concurrently.
+It captures each background process ID, waits for both suites to finish, records separate timestamped logs, and uploads both artifacts to S3 concurrently.
+
+Day 29 adds runtime parameters so the same script can target different buckets, deployment folders, and Docker images without editing source code.
 
 ```bash
 ./parallel_runner.sh
 
+# Day 29 parameterized run
 TARGET_S3_BUCKET=dipendu-qa-test-artifacts ENVIRONMENT_TAG=prod IMAGE_NAME=ubuy-monitor-app ./parallel_runner.sh
 # ⚡ [Enterprise DevOps] Launching Parameterized Test Matrix
 # Target Cloud Storage: s3://dipendu-qa-test-artifacts/prod/
