@@ -1,4 +1,4 @@
-# 30-Day DevOps Cloud Testing Journey 🚀
+# 31-Day DevOps Cloud Testing Journey 🚀
 
 This repository tracks my transition from a Manual QA Engineer to a DevOps-aligned Cloud Tester.  
 Built from scratch — every script, pipeline, and deployment is hands-on and production-inspired.
@@ -15,6 +15,7 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 | **Containerization** | Docker (Alpine Linux) |
 | **CI/CD** | GitHub Actions |
 | **Cloud** | AWS EC2 & S3 (Mumbai Region), IAM Secure Roles |
+| **Infrastructure as Code** | Terraform, AWS Provider, tagged S3 resources |
 | **Monitoring & Alerting** | AWS CloudWatch, AWS CLI, CPU & Status Alarms |
 | **Scheduling** | Linux Cron (local & cloud), @reboot jobs |
 | **Parallel Execution** | Bash background jobs, PID tracking, `wait` barriers |
@@ -58,6 +59,7 @@ Built from scratch — every script, pipeline, and deployment is hands-on and pr
 - [x] **Day 28:** Parallel Test Matrix — running monitor and inventory suites concurrently with background jobs, PID tracking, wait barriers, and parallel S3 uploads
 - [x] **Day 29:** Parameterized Runtime Configuration — environment-driven S3 bucket, deployment tag, and Docker image settings with safe shell fallback defaults
 - [x] **Day 30:** Graduation Master Architecture — final production run, complete pipeline synchronization, and graceful cloud resource teardown
+- [x] **Day 31:** Infrastructure as Code with Terraform — AWS provider setup, tagged S3 bucket provisioning, repeatable cloud resource management
 
 ---
 
@@ -95,6 +97,21 @@ Scheduled via cron every 30 minutes and on every EC2 reboot.
 # ☁️ Archiving artifacts to Amazon S3...
 # ✅ SUCCESS: Log archived safely to s3://dipendu-qa-test-artifacts/logs/
 # ==========================================
+```
+
+---
+
+### 🏗️ Terraform Infrastructure as Code (`terraform-testing/main.tf`)
+Declarative AWS infrastructure setup for provisioning cloud resources through Terraform instead of manual console changes.
+
+Defines the AWS provider for the Mumbai region and manages a tagged S3 bucket for QA automation logs.
+
+```bash
+cd terraform-testing
+terraform init
+terraform fmt
+terraform validate
+terraform apply
 ```
 
 ---
@@ -217,6 +234,12 @@ crontab -l
 
 # Verify S3 artifacts
 aws s3 ls s3://dipendu-qa-test-artifacts/logs/
+
+# Provision Day 31 Terraform infrastructure
+cd terraform-testing
+terraform init
+terraform validate
+terraform apply
 ```
 
 ---

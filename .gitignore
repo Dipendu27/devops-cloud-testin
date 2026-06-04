@@ -8,6 +8,7 @@
 tmp/
 temp.txt
 secret.txt
+*.pdf
 
 # Ignore private key material
 *.pem
@@ -22,3 +23,11 @@ tokens.txt
 
 # Ignore installed Node dependencies
 node_modules/
+
+# Ignore Terraform local runtime and state
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
